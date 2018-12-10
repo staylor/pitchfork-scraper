@@ -1,11 +1,15 @@
 {
   "extends": ["airbnb", "plugin:prettier/recommended", "prettier", "prettier/react"],
 
+  "globals": {
+    "KYT": false
+  },
+
   "rules": {
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "jsx-a11y/href-no-hash": "off",
     "jsx-a11y/anchor-is-valid": ["warn", { "aspects": ["invalidHref"] }],
-    "no-underscore-dangle": ["error", { "allow": ["__typename"] }],
+    "no-underscore-dangle": ["error", { "allow": ["__typename", "__APOLLO_STATE__", "__emotion"] }],
     "prettier/prettier": "error",
     "react/sort-comp": 0,
     "import/extensions": ["error", "ignorePackages"]
