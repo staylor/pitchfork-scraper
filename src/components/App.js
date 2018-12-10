@@ -9,19 +9,42 @@ import { css, cx } from 'emotion';
 const wrapClass = css`
   height: 200px;
   margin: 20px;
+  position: relative;
 `;
 
 const imageClass = css`
-  margin: 0 0 20px;
+  display: block;
+  margin: 0 0 12px;
 `;
 
 const textClass = css`
-  font-size: 13px;
+  font-size: 12px;
   line-height: 16px;
+`;
+
+const linkClass = css`
+  color: #333;
+  text-decoration: none;
 `;
 
 const placeholderClass = css`
   background: #ddd;
+`;
+
+const scoreClass = css`
+  background: #000;
+  border-radius: 50%;
+  color: white;
+  display: block;
+  font-size: 13px;
+  height: 24px;
+  left: 8px;
+  line-height: 24px;
+  padding: 2px;
+  position: absolute;
+  text-align: center;
+  top: 8px;
+  width: 24px;
 `;
 
 const withApolloClient = Composed => {
@@ -44,6 +67,8 @@ const albumQuery = gql`
             name
           }
           image
+          score
+          url
         }
       }
     }
@@ -87,8 +112,11 @@ class App extends Component {
       <article key={key} style={style}>
         <figure className={wrapClass}>
           <img src={album.image} alt="" className={imageClass} />
+          <span className={scoreClass}>{album.score.toFixed(1)}</span>{' '}
           <figcaption className={textClass}>
-            {album.artists.map(a => a.name).join(', ')} - <em>{album.name}</em>
+            <a href={album.url} className={linkClass}>
+              {album.artists.map(a => a.name).join(', ')} - <em>{album.name}</em>
+            </a>
           </figcaption>
         </figure>
       </article>

@@ -12,6 +12,7 @@
     "apollo-link-http": "^1.5.7",
     "apollo-link-schema": "^1.1.2",
     "apollo-server-express": "^2.2.6",
+    "bluebird": "^3.5.3",
     "cheerio": "^1.0.0-rc.2",
     "compression": "^1.7.3",
     "emotion": "^10.0.4",
