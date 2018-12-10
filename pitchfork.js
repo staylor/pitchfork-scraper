@@ -8,7 +8,8 @@ import Promise from 'bluebird';
 
 /* eslint-disable no-console */
 
-const maxPages = 2000;
+const MAX_PAGES = 2000;
+const MAX_SCORES_PER_PAGE = 25;
 
 const parseReview = (db, $) => async (i, review) => {
   const $r = $(review);
@@ -28,43 +29,67 @@ const parseReview = (db, $) => async (i, review) => {
 
   return db
     .run(
-      SQL`INSERT OR REPLACE INTO albums (name, date, image, url) VALUES (${title}, ${date}, ${image}, ${url})`
+      SQL`INSERT OR IGNORE INTO albums (name, date, image, url) VALUES (${title}, ${date}, ${image}, ${url})`
     )
     .then(async ({ stmt }) => {
-      console.log('Inserted:', stmt.lastID);
-      const albumId = stmt.lastID;
+      let albumId;
+      if (stmt.changes === 0) {
+        albumId = await db
+          .get(SQL`SELECT album_id as id FROM albums WHERE name = ${title} AND url = ${url}`)
+          .then(({ id }) => id);
+      } else {
+        albumId = stmt.lastID;
+      }
 
-      // console.log(title, artists);
-
-      await Promise.all(
+      const artistIds = await Promise.all(
         artists.map(artist =>
           db
-            .run(SQL`INSERT OR REPLACE INTO artists (name) VALUES (${artist})`)
+            .run(SQL`INSERT OR IGNORE INTO artists (name) VALUES (${artist})`)
+            .then(({ stmt: st }) => {
+              if (st.changes === 0) {
+                return db
+                  .get(SQL`SELECT artist_id as id FROM artists WHERE name = ${artist}`)
+                  .then(({ id }) => id);
+              }
+              return st.lastID;
+            })
+        )
+      );
+
+      console.log(albumId, title, artists, artistIds);
+
+      await Promise.all(
+        artistIds.map(artistId =>
+          db
+            .run(
+              SQL`INSERT OR IGNORE INTO album_artists (album_id, artist_id) VALUES (${albumId}, ${artistId})`
+            )
             .then(({ stmt: st }) => st.lastID)
         )
-      ).then(artistIds =>
-        Promise.all(
-          artistIds.map(artistId =>
-            db.run(
-              SQL`INSERT OR REPLACE INTO album_artists (album_id, artist_id) VALUES (${albumId}, ${artistId})`
-            )
-          )
+      );
+
+      const genreIds = await Promise.all(
+        genres.map(genre =>
+          db
+            .run(SQL`INSERT OR IGNORE INTO genres (name) VALUES (${genre})`)
+            .then(({ stmt: st }) => {
+              if (st.changes === 0) {
+                return db
+                  .get(SQL`SELECT genre_id as id FROM genres WHERE name = ${genre}`)
+                  .then(({ id }) => id);
+              }
+              return st.lastID;
+            })
         )
       );
 
       await Promise.all(
-        genres.map(genre =>
+        genreIds.map(genreId =>
           db
-            .run(SQL`INSERT OR REPLACE INTO genres (name) VALUES (${genre})`)
-            .then(({ stmt: st }) => st.lastID)
-        )
-      ).then(genreIds =>
-        Promise.all(
-          genreIds.map(genreId =>
-            db.run(
-              SQL`INSERT OR REPLACE INTO album_genres (album_id, genre_id) VALUES (${albumId}, ${genreId})`
+            .run(
+              SQL`INSERT OR IGNORE INTO album_genres (album_id, genre_id) VALUES (${albumId}, ${genreId})`
             )
-          )
+            .then(({ stmt: st }) => st.lastID)
         )
       );
 
@@ -72,7 +97,7 @@ const parseReview = (db, $) => async (i, review) => {
     });
 };
 
-const request = (db, base, i = 1) => {
+const request = ({ db, base, maxPages, i = 1 }) => {
   const url = `${base}?page=${i}`;
 
   console.log('Fetching:', url);
@@ -88,7 +113,7 @@ const request = (db, base, i = 1) => {
       reviews.each(iter);
 
       if (i < maxPages) {
-        return request(db, base, i + 1);
+        return request({ db, base, maxPages, i: i + 1 });
       }
       return Promise.resolve();
     });
@@ -96,7 +121,7 @@ const request = (db, base, i = 1) => {
 
 const pageRows = async (db, rows) => {
   const queries = [];
-  const promises = rows.splice(0, 25).map(row =>
+  const promises = rows.splice(0, MAX_SCORES_PER_PAGE).map(row =>
     fetch(row.url)
       .then(r => r.text())
       .then(review => {
@@ -125,6 +150,7 @@ const pageRows = async (db, rows) => {
   let doRequest = true;
   let offset = 0;
   let limit = -1;
+  const maxPages = argv.pages || MAX_PAGES;
 
   if (argv.reviews) {
     base = 'https://pitchfork.com/reviews/albums/';
@@ -145,7 +171,7 @@ const pageRows = async (db, rows) => {
   }
 
   if (doRequest) {
-    await request(db, base);
+    await request({ db, base, maxPages });
   }
 
   const rows = await db.all(
