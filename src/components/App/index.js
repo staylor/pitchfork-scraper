@@ -1,79 +1,91 @@
 import React, { Component } from 'react';
-import { ApolloConsumer } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { FixedSizeGrid as Grid } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
-import { cx } from 'emotion';
-import * as styles from './styled';
+import Cell from 'components/Cell';
 
 /* eslint-disable react/prop-types */
 
-const COLUMN_SIZE = 5;
+const COLUMN_WIDTH = 180;
+const ROW_HEIGHT = 220;
 
-const withApolloClient = Composed => {
-  function WithApolloClient(props) {
-    return <ApolloConsumer>{client => <Composed client={client} {...props} />}</ApolloConsumer>;
-  }
-  return WithApolloClient;
-};
-
-const albumQuery = gql`
-  query AlbumsQuery($limit: Int, $offset: Int) {
-    albums(limit: $limit, offset: $offset) {
-      count
-      edges {
-        node {
-          id
-          name
-          artists {
-            id
-            name
+@graphql(
+  gql`
+    query AlbumsQuery($limit: Int, $offset: Int) {
+      albums(limit: $limit, offset: $offset) {
+        count
+        edges {
+          node {
+            ...Cell_item
           }
-          image
-          score
-          url
         }
       }
     }
+    ${Cell.fragments.item}
+  `,
+  {
+    options: {
+      variables: {
+        offset: 0,
+        limit: 48,
+      },
+    },
+    props: ({
+      data: {
+        albums,
+        loading,
+        refetch,
+        variables: { offset, limit },
+      },
+    }) => {
+      const indexed = {};
+      const lastIndex = Math.min(offset + limit, offset + albums.edges.length);
+      for (let i = offset, j = 0; i < lastIndex; i += 1, j += 1) {
+        indexed[i] = albums.edges[j].node;
+      }
+
+      return {
+        count: albums.count,
+        items: indexed,
+        refetch,
+        loading,
+      };
+    },
   }
-`;
-
-const Cell = React.memo(({ item: album, style }) => {
-  if (!album) {
-    return (
-      <article style={style}>
-        <figure className={cx(styles.wrapClass, styles.placeholderClass)} />
-      </article>
-    );
-  }
-
-  return (
-    <article style={style}>
-      <figure className={styles.wrapClass}>
-        <img src={album.image} alt="" className={styles.imageClass} />
-        {album.score && <span className={styles.scoreClass}>{album.score.toFixed(1)}</span>}
-        <figcaption className={styles.textClass}>
-          <a href={album.url} className={styles.linkClass}>
-            {album.artists.map(a => a.name).join(', ')} - <em>{album.name}</em>
-          </a>
-        </figcaption>
-      </figure>
-    </article>
-  );
-});
-
-@withApolloClient
+)
 class App extends Component {
   state = {
+    columns: 0,
+    width: 0,
+    height: 0,
     count: 5150,
     items: {},
   };
 
   requestCache = {};
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.loading || !nextProps.items) {
+      return null;
+    }
+
+    return {
+      count: nextProps.count,
+      items: {
+        ...prevState.items,
+        ...nextProps.items,
+      },
+    };
+  }
+
   isItemLoaded = ({ index }) => !!this.state.items[index];
 
   loadMoreItems = (visibleStartIndex, visibleStopIndex) => {
+    if (this.props.loading) {
+      return;
+    }
+
     const key = [visibleStartIndex, visibleStopIndex].join(':');
     if (this.requestCache[key]) {
       return;
@@ -92,68 +104,71 @@ class App extends Component {
       return;
     }
 
-    this.props.client
-      .query({
-        query: albumQuery,
-        variables: { offset: visibleStartIndex, limit: visibleStopIndex - visibleStartIndex },
-      })
-      .then(({ data }) => {
-        const indexed = {};
-        const lastIndex = Math.min(visibleStopIndex, visibleStartIndex + data.albums.edges.length);
-        for (let i = visibleStartIndex, j = 0; i < lastIndex; i += 1, j += 1) {
-          indexed[i] = data.albums.edges[j].node;
-        }
-        this.setState(
-          ({ items }) => ({
-            count: data.albums.count,
-            items: {
-              ...items,
-              ...indexed,
-            },
-          }),
-          () => {
-            this.requestCache[key] = key;
-          }
-        );
+    this.props
+      .refetch({ offset: visibleStartIndex, limit: visibleStopIndex - visibleStartIndex })
+      .then(() => {
+        this.requestCache[key] = key;
       });
   };
 
-  onItemsRendered = onItemsRendered => ({
+  onItemsRendered = infiniteOnItemsRendered => ({
     visibleColumnStartIndex,
     visibleColumnStopIndex,
     visibleRowStartIndex,
     visibleRowStopIndex,
   }) => {
-    const visibleStartIndex = visibleRowStartIndex * COLUMN_SIZE + visibleColumnStartIndex;
-    const visibleStopIndex = visibleRowStopIndex * COLUMN_SIZE + visibleColumnStopIndex;
+    const visibleStartIndex = visibleRowStartIndex * this.state.columns + visibleColumnStartIndex;
+    const visibleStopIndex = visibleRowStopIndex * this.state.columns + visibleColumnStopIndex;
 
-    onItemsRendered({
+    infiniteOnItemsRendered({
       visibleStartIndex,
       visibleStopIndex,
     });
   };
 
   renderCell = ({ rowIndex, columnIndex, style }) => {
-    const item = this.state.items[rowIndex * COLUMN_SIZE + columnIndex];
+    const item = this.state.items[rowIndex * this.state.columns + columnIndex];
     return <Cell {...{ item, style }} />;
   };
 
+  recalcSize = () => {
+    const width = (document.documentElement.clientWidth || document.body.clientWidth) - 20;
+    const height = window.innerHeight;
+    const columns = Math.floor(width / COLUMN_WIDTH);
+
+    this.setState({
+      width,
+      height,
+      columns,
+    });
+  };
+
+  componentDidMount() {
+    this.recalcSize();
+
+    window.addEventListener('resize', this.recalcSize);
+  }
+
   render() {
+    if (this.state.columns === 0) {
+      return null;
+    }
+
     return (
       <InfiniteLoader
         isItemLoaded={this.isItemLoaded}
         loadMoreItems={this.loadMoreItems}
-        itemCount={this.state.count + 1}
+        itemCount={this.state.count}
       >
         {({ onItemsRendered, ref }) => (
           <Grid
             onItemsRendered={this.onItemsRendered(onItemsRendered)}
-            columnCount={COLUMN_SIZE}
-            columnWidth={180}
-            height={800}
-            rowCount={Math.max(this.state.count / COLUMN_SIZE)}
-            rowHeight={220}
-            width={1024}
+            columnCount={this.state.columns}
+            columnWidth={COLUMN_WIDTH}
+            height={this.state.height}
+            rowCount={Math.max(this.state.count / this.state.columns)}
+            rowHeight={ROW_HEIGHT}
+            width={this.state.width}
             ref={ref}
           >
             {this.renderCell}
