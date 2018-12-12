@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import Range from 'components/Range';
 import Grid, { transformProps } from 'components/Grid';
 
 /* eslint-disable react/prop-types */
@@ -28,12 +27,7 @@ import Grid, { transformProps } from 'components/Grid';
 )
 class Home extends Component {
   render() {
-    return (
-      <section>
-        <Range value={this.props.score} defaultLabel="Showing All Scores" />
-        <Grid {...this.props} />
-      </section>
-    );
+    return <Grid {...this.props} />;
   }
 }
 

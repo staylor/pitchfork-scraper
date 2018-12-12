@@ -8,6 +8,9 @@ import Rating from 'routes/Rating';
 function App() {
   return (
     <section>
+      <header>
+        <h1>Pitchfork Reviews</h1>
+      </header>
       <Route path="/rating/:score" component={Rating} />
       <Route path="/" exact component={Home} />
     </section>

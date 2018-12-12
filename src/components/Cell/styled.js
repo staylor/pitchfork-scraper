@@ -2,7 +2,7 @@ import { css } from 'emotion';
 
 export const wrapClass = css`
   height: 200px;
-  margin: 10px;
+  margin: 5px 5px 5px 0;
   position: relative;
 `;
 

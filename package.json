@@ -21,7 +21,7 @@
     "graphql": "^14.0.2",
     "graphql-tag": "^2.10.0",
     "graphql-tools": "^4.0.3",
-    "kyt": "^0.9.0",
+    "kyt": "1.0.0-beta.4121828c",
     "minimist": "^1.2.0",
     "morgan": "^1.9.1",
     "node-fetch": "^2.2.1",

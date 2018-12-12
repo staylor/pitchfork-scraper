@@ -3,8 +3,9 @@ import { FixedSizeGrid } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import gql from 'graphql-tag';
 import Cell from 'components/Cell';
+import Range from 'components/Range';
 
-const COLUMN_WIDTH = 180;
+const COLUMN_WIDTH = 170;
 const ROW_HEIGHT = 220;
 
 export const transformProps = ({
@@ -128,8 +129,8 @@ class Grid extends Component {
   };
 
   recalcSize = () => {
-    const width = (document.documentElement.clientWidth || document.body.clientWidth) - 10;
-    const height = window.innerHeight - 80;
+    const width = (document.documentElement.clientWidth || document.body.clientWidth) - 40;
+    const height = window.innerHeight - 160;
     const columns = Math.floor((width - 40) / COLUMN_WIDTH);
 
     this.setState({
@@ -145,6 +146,10 @@ class Grid extends Component {
     window.addEventListener('resize', this.recalcSize);
   }
 
+  onReset = () => {
+    this.gridRef.scrollToItem({ rowIndex: 0, columnIndex: 0 });
+  };
+
   render() {
     if (this.state.columns === 0) {
       return null;
@@ -157,18 +162,24 @@ class Grid extends Component {
         itemCount={this.state.count}
       >
         {({ onItemsRendered, ref }) => (
-          <FixedSizeGrid
-            onItemsRendered={this.onItemsRendered(onItemsRendered)}
-            columnCount={this.state.columns}
-            columnWidth={COLUMN_WIDTH}
-            height={this.state.height}
-            rowCount={Math.ceil(this.state.count / this.state.columns)}
-            rowHeight={ROW_HEIGHT}
-            width={this.state.width}
-            ref={ref}
-          >
-            {this.renderCell}
-          </FixedSizeGrid>
+          <section>
+            <Range value={this.props.score} onChange={this.onReset} defaultLabel="All Scores" />
+            <FixedSizeGrid
+              onItemsRendered={this.onItemsRendered(onItemsRendered)}
+              columnCount={this.state.columns}
+              columnWidth={COLUMN_WIDTH}
+              height={this.state.height}
+              rowCount={Math.ceil(this.state.count / this.state.columns)}
+              rowHeight={ROW_HEIGHT}
+              width={this.state.width}
+              ref={gridRef => {
+                this.gridRef = gridRef;
+                ref(gridRef);
+              }}
+            >
+              {this.renderCell}
+            </FixedSizeGrid>
+          </section>
         )}
       </InfiniteLoader>
     );
