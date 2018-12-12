@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
+import { BrowserRouter } from 'react-router-dom';
 import { hydrate } from 'emotion';
 import App from 'components/App';
 import apolloClient from './apollo';
@@ -11,7 +12,9 @@ if (window.__emotion) {
 
 ReactDOM.hydrate(
   <ApolloProvider client={apolloClient}>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </ApolloProvider>,
   document.getElementById('main')
 );

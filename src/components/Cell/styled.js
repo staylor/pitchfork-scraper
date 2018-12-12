@@ -47,12 +47,12 @@ export const scoreClass = css`
   color: white;
   display: block;
   font-size: 13px;
-  height: 24px;
-  left: 8px;
-  line-height: 24px;
+  height: 28px;
+  right: 8px;
+  line-height: 28px;
   padding: 2px;
   position: absolute;
   text-align: center;
   top: 8px;
-  width: 24px;
+  width: 28px;
 `;

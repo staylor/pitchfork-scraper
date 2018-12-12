@@ -1,6 +1,6 @@
 import { gql } from 'apollo-server-express';
 import SQL from 'sql-template-strings';
-import { parseConnection } from './connection';
+import { parseConnection, base64 } from './connection';
 
 const typeDefs = gql`
   type Artist {
@@ -43,21 +43,13 @@ const typeDefs = gql`
   }
 
   type Query {
-    albums(offset: Int, limit: Int): AlbumConnection
+    albums(offset: Int, limit: Int, score: Int): AlbumConnection
   }
 
   schema {
     query: Query
   }
 `;
-
-export function base64(i) {
-  return Buffer.from(i, 'utf8').toString('base64');
-}
-
-export function unbase64(i) {
-  return Buffer.from(i, 'base64').toString('utf8');
-}
 
 export function toGlobalId(type, id) {
   return base64([type, id].join(':'));
