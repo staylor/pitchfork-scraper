@@ -28,7 +28,11 @@ class Range extends Component {
           className={styles.rangeClass}
           onChange={this.onChange}
         />{' '}
-        {this.props.value > 0 ? `Rating: ${this.props.value}` : this.props.defaultLabel}
+        <span className={styles.textClass}>
+          {this.props.value > 0
+            ? `Rating: ${this.props.value.toFixed(1)}`
+            : this.props.defaultLabel}
+        </span>
       </div>
     );
   }
