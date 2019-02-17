@@ -1,10 +1,10 @@
-import { URL } from 'url';
-import fetch from 'node-fetch';
-import cheerio from 'cheerio';
-import minimist from 'minimist';
-import sqlite from 'sqlite';
-import SQL from 'sql-template-strings';
-import Promise from 'bluebird';
+const { URL } = require('url');
+const fetch = require('node-fetch');
+const cheerio = require('cheerio');
+const minimist = require('minimist');
+const sqlite = require('sqlite');
+const SQL = require('sql-template-strings');
+const Promise = require('bluebird');
 
 /* eslint-disable no-console */
 

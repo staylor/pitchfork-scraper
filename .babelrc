@@ -1,12 +1,24 @@
 {
-  "presets": [["kyt-react", { "modules": true }]],
+  "presets": [
+    "babel-preset-kyt-react"
+  ],
   "plugins": [
-    "transform-decorators-legacy",
-    "transform-class-properties",
-    "transform-es2015-modules-commonjs",
-    "transform-object-rest-spread",
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    "@babel/plugin-proposal-class-properties",
+    "kyt-runtime/babel",
     ["module-resolver", {
       "root": ["./src"]
     }]
-  ]
+  ],
+  "env": {
+    "production": {
+      "plugins": [["emotion", { "hoist": true }]]
+    },
+    "development": {
+      "plugins": [["emotion", { "sourceMap": true, "autoLabel": true }]]
+    },
+    "test": {
+      "plugins": [["emotion", { "hoist": true, "autoLabel": true }]]
+    }
+  }
 }

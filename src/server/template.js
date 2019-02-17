@@ -1,10 +1,13 @@
 import virtualizedCSS from 'public/virtualized.css';
 
-// eslint-disable-next-line
-const assets = require(KYT.ASSETS_MANIFEST);
-const scripts = ['manifest', 'vendor', 'main']
+const assets =
+  process.env.NODE_ENV === 'production'
+    ? // eslint-disable-next-line
+      require(KYT.ASSETS_MANIFEST)
+    : { 'main.js': 'http://localhost:3001/main.js' };
+const scripts = ['runtime', 'vendor', 'main']
   .map(name => assets[`${name}.js`] || '')
-  .filter(s => s);
+  .filter(Boolean);
 
 export default ({ ids, css, html, initialState: state }) => `
 <!DOCTYPE html>

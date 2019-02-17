@@ -1,0 +1,7 @@
+{
+  "uid": "pitchfork",
+  "script": "./build/server/main.js",
+  "append": true,
+  "minUptime": "1000ms",
+  "spinSleepTime": 0
+}
