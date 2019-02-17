@@ -4,9 +4,9 @@ proxy_cache_path /data/nginx/pitchfork levels=1:2 keys_zone=pitchfork:10m max_si
 server {
 	listen       80;
 	server_name  pitchfork.highforthis.com;
-	root         /var/www/pitchfork.highforthis.com/public_html;
-	access_log   /var/www/pitchfork.highforthis.com/logs/access.log;
-	error_log    /var/www/pitchfork.highforthis.com/logs/error.log;
+	root         /var/www/highforthis.com/public_html;
+	access_log   /var/www/highforthis.com/logs/pitchfork-access.log;
+	error_log    /var/www/highforthis.com/logs/pitchfork-error.log;
 
 	client_body_buffer_size 1M;
 	client_max_body_size 100M;
