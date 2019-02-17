@@ -5,6 +5,8 @@ import gql from 'graphql-tag';
 import Cell from 'components/Cell';
 import Range from 'components/Range';
 
+/* eslint-disable react/prop-types */
+
 const COLUMN_WIDTH = 170;
 const ROW_HEIGHT = 220;
 
