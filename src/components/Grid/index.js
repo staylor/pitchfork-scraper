@@ -148,6 +148,10 @@ class Grid extends Component {
     window.addEventListener('resize', this.recalcSize);
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.recalcSize);
+  }
+
   onReset = () => {
     this.gridRef.scrollToItem({ rowIndex: 0, columnIndex: 0 });
   };
