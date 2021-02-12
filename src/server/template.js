@@ -1,15 +1,8 @@
 import virtualizedCSS from 'public/virtualized.css';
 
-const assets =
-  process.env.NODE_ENV === 'production'
-    ? // eslint-disable-next-line
-      require(KYT.ASSETS_MANIFEST)
-    : { 'main.js': 'http://localhost:3001/main.js' };
-const scripts = ['runtime', 'vendor', 'main']
-  .map(name => assets[`${name}.js`] || '')
-  .filter(Boolean);
+const getDeferScript = src => `<script defer src="${src}"></script>`;
 
-export default ({ ids, css, html, initialState: state }) => `
+export default ({ ids, css, html, bundles, initialState: state }) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -24,7 +17,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 <body>
   <main id="main">${html}</main>
   <script>window.__APOLLO_STATE__ = ${JSON.stringify(state).replace(/</g, '\\u003c')};</script>
-  ${scripts.map(src => `<script defer src="${src}"></script>`).join('')}
+  ${bundles.runtimeBundle ? getDeferScript(bundles.runtimeBundle) : ''}
+  ${bundles.vendorBundle ? getDeferScript(bundles.vendorBundle) : ''}
+  ${bundles.scripts.map(getDeferScript).join('\n')}
+  ${bundles.entryBundle ? getDeferScript(bundles.entryBundle) : ''}
 </body>
 </html>
 `;

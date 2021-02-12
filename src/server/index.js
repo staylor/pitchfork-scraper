@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router';
+import { preloadDynamicImports, DynamicImports, getBundles } from 'kyt-runtime/server';
 import { extractCritical } from 'pretty-lights/server';
 import { ApolloServer } from 'apollo-server-express';
 import sqlite from 'sqlite';
@@ -34,20 +35,23 @@ let db;
 
   app.get('*', async (req, res) => {
     const staticContext = {};
+    const modules = [];
     const client = apolloClient(db);
     const tree = (
-      <ApolloProvider client={client}>
-        <StaticRouter location={req.url} context={staticContext}>
-          <App />
-        </StaticRouter>
-      </ApolloProvider>
+      <DynamicImports report={moduleName => modules.push(moduleName)}>
+        <ApolloProvider client={client}>
+          <StaticRouter location={req.url} context={staticContext}>
+            <App />
+          </StaticRouter>
+        </ApolloProvider>
+      </DynamicImports>
     );
 
     await getDataFromTree(tree);
 
     const { ids, css, html } = extractCritical(renderToString(tree));
     const initialState = client.extract();
-    res.send(template({ ids, css, html, initialState }));
+    res.send(template({ ids, css, html, bundles: getBundles({ modules }), initialState }));
   });
 
   app.listen(parseInt(KYT.SERVER_PORT, 10));
