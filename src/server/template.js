@@ -19,11 +19,10 @@ export default ({ ids, css, html, initialState: state }) => `
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" }
 </style>
 <link rel="stylesheet" href="${virtualizedCSS}" />
-<style>${css}</style>
+<style data-lights-css="${ids.join(' ')}">${css}</style>
 </head>
 <body>
   <main id="main">${html}</main>
-  <script>window.__emotion = ${JSON.stringify(ids)};</script>
   <script>window.__APOLLO_STATE__ = ${JSON.stringify(state).replace(/</g, '\\u003c')};</script>
   ${scripts.map(src => `<script defer src="${src}"></script>`).join('')}
 </body>

@@ -1,4 +1,4 @@
-import { css } from 'emotion';
+import { css } from 'pretty-lights';
 
 export const wrapClass = css`
   height: 200px;

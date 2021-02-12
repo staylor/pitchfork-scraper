@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router';
-import { extractCritical } from 'emotion-server';
+import { extractCritical } from 'pretty-lights/server';
 import { ApolloServer } from 'apollo-server-express';
 import sqlite from 'sqlite';
 import { ApolloProvider, getDataFromTree } from 'react-apollo';

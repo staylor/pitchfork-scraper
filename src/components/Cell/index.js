@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { cx } from 'emotion';
+import { cx } from 'pretty-lights';
 import * as styles from './styled';
 
 /* eslint-disable react/prop-types */
