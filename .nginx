@@ -4,7 +4,7 @@ proxy_cache_path /data/nginx/pitchfork levels=1:2 keys_zone=pitchfork:10m max_si
 server {
 	listen       80;
 	server_name  pitchfork.highforthis.com;
-	root         /var/www/highforthis.com/public_html;
+	root         /var/www/highforthis.com/pitchfork-scraper;
 	access_log   /var/www/highforthis.com/logs/pitchfork-access.log;
 	error_log    /var/www/highforthis.com/logs/pitchfork-error.log;
 
