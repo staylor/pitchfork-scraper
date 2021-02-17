@@ -10,24 +10,17 @@ import Range from 'components/Range';
 const COLUMN_WIDTH = 170;
 const ROW_HEIGHT = 220;
 
-export const transformProps = ({
-  data: {
-    albums,
-    loading,
-    refetch,
-    variables: { offset, limit, score },
-  },
-}) => {
+export const transformProps = ({ data, loading, refetch, variables: { offset, limit, score } }) => {
   let count = 0;
 
   const indexed = {};
 
-  if (albums) {
+  if (data && data.albums) {
     // eslint-disable-next-line prefer-destructuring
-    count = albums.count;
-    const lastIndex = Math.min(offset + limit, offset + albums.edges.length);
+    count = data.albums.count;
+    const lastIndex = Math.min(offset + limit, offset + data.albums.edges.length);
     for (let i = offset, j = 0; i < lastIndex; i += 1, j += 1) {
-      indexed[i] = albums.edges[j].node;
+      indexed[i] = data.albums.edges[j].node;
     }
   }
 
@@ -43,13 +36,17 @@ export const transformProps = ({
 };
 
 class Grid extends Component {
-  state = {
-    columns: 0,
-    width: 0,
-    height: 0,
-    items: {},
-    count: 5150,
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      columns: 0,
+      width: 0,
+      height: 0,
+      items: {},
+      count: 5150,
+    };
+  }
 
   requestCache = {};
 
@@ -127,7 +124,7 @@ class Grid extends Component {
 
   renderCell = ({ rowIndex, columnIndex, style }) => {
     const item = this.state.items[rowIndex * this.state.columns + columnIndex];
-    return <Cell {...{ item, style }} />;
+    return <Cell item={item} style={style} />;
   };
 
   recalcSize = () => {

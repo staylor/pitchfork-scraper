@@ -1,5 +1,5 @@
 import React from 'react';
-import { withRouter, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import Home from 'routes/Home';
 import Rating from 'routes/Rating';
 
@@ -17,4 +17,4 @@ function App() {
   );
 }
 
-export default withRouter(App);
+export default App;
