@@ -8,6 +8,7 @@
     "build": "kyt build",
     "start": "node ./build/server/main.js",
     "reviews": "babel-node pitchfork.js --reviews",
+    "scores": "babel-node pitchfork.js --scores",
     "prod:build": "NODE_ENV=production kyt build",
     "prod:stop": "forever stop pitchfork",
     "prod:start": "NODE_ENV=production forever start -a forever.prod.json",
