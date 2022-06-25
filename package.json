@@ -32,7 +32,7 @@
     "kyt-runtime": "1.2.10",
     "minimist": "1.2.5",
     "morgan": "1.10.0",
-    "node-fetch": "2.6.1",
+    "node-fetch": "2.6.7",
     "pretty-lights": "0.0.19",
     "prop-types": "15.7.2",
     "react": "16.8.6",
