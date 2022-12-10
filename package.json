@@ -25,7 +25,7 @@
     "cheerio": "1.0.0-rc.5",
     "compression": "1.7.4",
     "core-js": "3.8.3",
-    "express": "4.17.1",
+    "express": "4.17.3",
     "forever": "3.0.4",
     "graphql": "14.1.1",
     "graphql-tools": "4.0.4",
